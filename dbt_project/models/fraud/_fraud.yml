@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: eval
+    schema: eval
+    description: >
+      Ground-truth fraud labels, withheld from the production transactions
+      feed. Exists only because this is a synthetic benchmark dataset —
+      used to score and tune the rule-based detection logic.
+    tables:
+      - name: fraud_ground_truth
+
+models:
+  - name: fr_velocity_flags
+    description: Rule 1 — rapid transaction bursts (cycling / wallet testing).
+  - name: fr_structuring_flags
+    description: Rule 2 — sub-limit transaction splitting.
+  - name: fr_agent_imbalance_flags
+    description: Rule 3 — agent cash-out volume far exceeding cash-in (till-tapping).
+  - name: fr_geo_impossible_flags
+    description: Rule 4 — same customer active in two distant regions too quickly.
+  - name: fr_dormant_reactivation_flags
+    description: Rule 5 — dormant account suddenly reactivated (SIM-swap style takeover).
+  - name: fraud_alerts
+    description: Unified alert queue, one row per (transaction, rule tripped).
+  - name: fraud_rule_evaluation
+    description: >
+      Precision/recall of the combined rule set against withheld ground
+      truth. Diagnostic model — not part of the "production" pipeline.

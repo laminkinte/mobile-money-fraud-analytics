@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: agents
+      - name: customers
+      - name: transactions
+
+models:
+  - name: stg_agents
+    description: One row per mobile money agent, lightly cleaned.
+    columns:
+      - name: agent_id
+        tests: [unique, not_null]
+
+  - name: stg_customers
+    description: One row per registered wallet holder.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: kyc_tier
+        tests:
+          - accepted_values:
+              values: ['tier_1', 'tier_2', 'tier_3']
+
+  - name: stg_transactions
+    description: One row per transaction, deduplicated on transaction_id.
+    columns:
+      - name: transaction_id
+        tests: [unique, not_null]
+      - name: txn_type
+        tests:
+          - accepted_values:
+              values: ['cash_in', 'cash_out', 'p2p_transfer', 'bill_pay', 'airtime_topup']
+      - name: amount
+        tests:
+          - not_null

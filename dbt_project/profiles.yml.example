@@ -1,0 +1,24 @@
+# Copy to ~/.dbt/profiles.yml and fill in credentials.
+# Two target examples given — use whichever warehouse you loaded data into.
+
+mobile_money_fraud_analytics:
+  target: postgres
+  outputs:
+
+    postgres:
+      type: postgres
+      host: localhost
+      user: your_user
+      password: your_password
+      port: 5432
+      dbname: mobile_money
+      schema: raw
+      threads: 4
+
+    bigquery:
+      type: bigquery
+      method: oauth
+      project: your-gcp-project-id
+      dataset: raw
+      threads: 4
+      location: US

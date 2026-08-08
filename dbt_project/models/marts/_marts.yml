@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: dim_agents
+    description: One row per agent.
+    columns:
+      - name: agent_id
+        tests: [unique, not_null]
+
+  - name: dim_customers
+    description: One row per customer.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+
+  - name: fct_transactions
+    description: One row per transaction, enriched with customer/agent context.
+    columns:
+      - name: transaction_id
+        tests: [unique, not_null]
+
+  - name: agent_daily_health
+    description: One row per agent per day — volume, cash balance ratio, imbalance flag.
+
+  - name: transaction_velocity_daily
+    description: Daily transaction volume/value by type and region.
+
+  - name: fraud_alert_summary
+    description: >
+      One row per flagged transaction, with rules_tripped and max_severity.
+      This is the table the analyst review dashboard queries directly.
