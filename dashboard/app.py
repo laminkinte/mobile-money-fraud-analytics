@@ -32,31 +32,91 @@ st.set_page_config(
 
 
 def _inject_responsive_ui():
-    """Inject a small responsive meta tag and CSS tweaks for mobile devices.
+    """Inject a responsive meta tag and CSS tweaks for phones/tablets/desktop.
 
     Streamlit's layout is responsive by default, but these rules improve
-    spacing, stacking of columns and sizing of charts/tables on small
-    screens (phones / narrow viewports).
+    spacing, column stacking, and chart/table sizing across breakpoints.
+    Both the current `data-testid` attributes and the legacy `.stXxx`
+    class names are targeted, since Streamlit's internal class hashes
+    (`.css-xxxxx`) are not stable across versions.
     """
     st.markdown(
         """
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
         <style>
-        /* Slightly tighter default page padding */
-        .block-container{padding:8px 12px;}
+        /* ---------- Base (desktop-first) ---------- */
+        .block-container {padding:1.5rem 2rem 3rem; max-width:100%;}
 
-                /* Mobile adjustments */
+        /* Charts and tables always fill their column and scroll horizontally
+           rather than overflowing the viewport / getting clipped. */
+        [data-testid="stDataFrame"], .stDataFrame,
+        [data-testid="stPlotlyChart"], .stPlotlyChart,
+        [data-testid="stElementContainer"], .element-container {
+            width:100% !important;
+            max-width:100% !important;
+            overflow-x:auto;
+            -webkit-overflow-scrolling:touch;
+        }
 
-                /* Ensure dataframes and charts fill the viewport and allow horizontal scroll when needed (always) */
-                .stDataFrame, .stPlotlyChart, .element-container {width:100% !important; overflow-x:auto; -webkit-overflow-scrolling: touch;}
+        /* Tab strip scrolls horizontally instead of wrapping awkwardly */
+        [data-testid="stTabs"] [data-baseweb="tab-list"] {
+            overflow-x:auto;
+            flex-wrap:nowrap;
+            -webkit-overflow-scrolling:touch;
+        }
+        [data-testid="stTabs"] [data-baseweb="tab"] {white-space:nowrap;}
 
-                @media (max-width: 700px) {
-                    /* Stack column groups vertically */
-                    .stColumns > div, .css-1lcbmhc > div {width:100% !important; display:block !important;}
+        /* ---------- Tablet ---------- */
+        @media (max-width: 900px) {
+            .block-container {padding:1rem 1rem 2rem;}
 
-                    /* Make KPI metrics more compact and stack label/value */
-                    .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
-                }
+            /* Let 4-up KPI rows wrap to 2x2 instead of squeezing to fit */
+            [data-testid="stHorizontalBlock"] {flex-wrap:wrap !important;}
+            [data-testid="stHorizontalBlock"] > [data-testid="column"],
+            [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+                min-width:45% !important;
+                flex:1 1 45% !important;
+            }
+        }
+
+        /* ---------- Phone ---------- */
+        @media (max-width: 640px) {
+            .block-container {padding:0.5rem 0.6rem 1.5rem;}
+
+            h1 {font-size:1.4rem !important;}
+            h2, [data-testid="stSubheader"] {font-size:1.1rem !important;}
+            .stCaption, [data-testid="stCaptionContainer"] {font-size:0.8rem !important;}
+
+            /* Stack every column group fully vertically on phones */
+            [data-testid="stHorizontalBlock"] {flex-direction:column !important;}
+            [data-testid="stHorizontalBlock"] > [data-testid="column"],
+            [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+                width:100% !important;
+                min-width:100% !important;
+                flex:1 1 100% !important;
+            }
+
+            /* Compact, stacked KPI metrics */
+            [data-testid="stMetric"] {
+                background:rgba(127,127,127,0.08);
+                border-radius:0.5rem;
+                padding:0.5rem 0.75rem;
+                flex-direction:column !important;
+                align-items:flex-start !important;
+            }
+            [data-testid="stMetricValue"] {font-size:1.25rem !important;}
+            [data-testid="stMetricLabel"] {font-size:0.75rem !important;}
+
+            /* Shrink tab labels so all four fit without excessive scrolling */
+            [data-testid="stTabs"] [data-baseweb="tab"] {
+                font-size:0.8rem;
+                padding:0.4rem 0.6rem;
+            }
+
+            /* Legacy selectors kept for older Streamlit builds */
+            .stColumns > div, .css-1lcbmhc > div {width:100% !important; display:block !important;}
+            .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
+        }
         </style>
         """,
         unsafe_allow_html=True,
