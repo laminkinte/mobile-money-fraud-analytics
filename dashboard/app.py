@@ -31,6 +31,40 @@ st.set_page_config(
 )
 
 
+def _inject_responsive_ui():
+    """Inject a small responsive meta tag and CSS tweaks for mobile devices.
+
+    Streamlit's layout is responsive by default, but these rules improve
+    spacing, stacking of columns and sizing of charts/tables on small
+    screens (phones / narrow viewports).
+    """
+    st.markdown(
+        """
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        /* Slightly tighter default page padding */
+        .block-container{padding:8px 12px;}
+
+        /* Mobile adjustments */
+        @media (max-width: 700px) {
+          /* Stack column groups vertically */
+          .stColumns > div, .css-1lcbmhc > div {width:100% !important; display:block !important;}
+
+          /* Make KPI metrics more compact and stack label/value */
+          .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
+
+          /* Ensure dataframes and charts fill the viewport and allow horizontal scroll when needed */
+          .stDataFrame, .stPlotlyChart, .element-container {width:100% !important; overflow-x:auto;}
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+_inject_responsive_ui()
+
+
 # ---------------------------------------------------------------------------
 # Data loading (cached)
 # ---------------------------------------------------------------------------
