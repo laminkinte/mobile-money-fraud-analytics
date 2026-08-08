@@ -45,17 +45,18 @@ def _inject_responsive_ui():
         /* Slightly tighter default page padding */
         .block-container{padding:8px 12px;}
 
-        /* Mobile adjustments */
-        @media (max-width: 700px) {
-          /* Stack column groups vertically */
-          .stColumns > div, .css-1lcbmhc > div {width:100% !important; display:block !important;}
+                /* Mobile adjustments */
 
-          /* Make KPI metrics more compact and stack label/value */
-          .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
+                /* Ensure dataframes and charts fill the viewport and allow horizontal scroll when needed (always) */
+                .stDataFrame, .stPlotlyChart, .element-container {width:100% !important; overflow-x:auto; -webkit-overflow-scrolling: touch;}
 
-          /* Ensure dataframes and charts fill the viewport and allow horizontal scroll when needed */
-          .stDataFrame, .stPlotlyChart, .element-container {width:100% !important; overflow-x:auto;}
-        }
+                @media (max-width: 700px) {
+                    /* Stack column groups vertically */
+                    .stColumns > div, .css-1lcbmhc > div {width:100% !important; display:block !important;}
+
+                    /* Make KPI metrics more compact and stack label/value */
+                    .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
+                }
         </style>
         """,
         unsafe_allow_html=True,
