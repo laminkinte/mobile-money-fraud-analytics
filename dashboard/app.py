@@ -39,13 +39,24 @@ def _inject_responsive_ui():
     Both the current `data-testid` attributes and the legacy `.stXxx`
     class names are targeted, since Streamlit's internal class hashes
     (`.css-xxxxx`) are not stable across versions.
+
+    Uses `st.html()` rather than `st.markdown(..., unsafe_allow_html=True)`:
+    markdown runs this indented, blank-line-separated block through a
+    CommonMark parser first, which reads it as an indented code block and
+    prints the raw CSS as visible text instead of injecting it as a
+    stylesheet. `st.html()` renders raw HTML with no markdown pass.
     """
-    st.markdown(
+    st.html(
         """
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
         <style>
-        /* ---------- Base (desktop-first) ---------- */
-        .block-container {padding:1.5rem 2rem 3rem; max-width:100%;}
+        /* ---------- Base (desktop-first) ----------
+           Only left/right/bottom padding is touched here — Streamlit's
+           own top padding on .block-container clears the fixed header
+           toolbar, and overriding it (even at a "reasonable" value)
+           causes the page title to run under the toolbar on short
+           viewports, so it's left alone at every breakpoint. */
+        .block-container {padding-left:2rem; padding-right:2rem; padding-bottom:3rem; max-width:100%;}
 
         /* Charts and tables always fill their column and scroll horizontally
            rather than overflowing the viewport / getting clipped. */
@@ -68,7 +79,7 @@ def _inject_responsive_ui():
 
         /* ---------- Tablet ---------- */
         @media (max-width: 900px) {
-            .block-container {padding:1rem 1rem 2rem;}
+            .block-container {padding-left:1rem; padding-right:1rem; padding-bottom:2rem;}
 
             /* Let 4-up KPI rows wrap to 2x2 instead of squeezing to fit */
             [data-testid="stHorizontalBlock"] {flex-wrap:wrap !important;}
@@ -81,7 +92,7 @@ def _inject_responsive_ui():
 
         /* ---------- Phone ---------- */
         @media (max-width: 640px) {
-            .block-container {padding:0.5rem 0.6rem 1.5rem;}
+            .block-container {padding-left:0.6rem; padding-right:0.6rem; padding-bottom:1.5rem;}
 
             h1 {font-size:1.4rem !important;}
             h2, [data-testid="stSubheader"] {font-size:1.1rem !important;}
@@ -118,8 +129,7 @@ def _inject_responsive_ui():
             .stMetric, .stMetric > div {flex-direction:column !important; align-items:flex-start !important;}
         }
         </style>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
